@@ -1596,6 +1596,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_XDACOMET             1603
 #define MACH_TYPE_DEXFLEX2             1604
 #define MACH_TYPE_SFFSDR               1657
+#define MACH_TYPE_FL2440	           1658
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type

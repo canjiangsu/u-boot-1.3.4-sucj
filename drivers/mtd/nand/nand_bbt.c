@@ -262,7 +262,7 @@ static void create_bbt (struct mtd_info *mtd, uint8_t *buf, struct nand_bbt_desc
 	size_t readlen, ooblen;
 
 	if (bd->options & NAND_BBT_SCANALLPAGES)
-		len = 1 << (this->bbt_erase_shift - this->page_shift);
+		len = 1 << (this->bbt_erase_shift - this->page_shift); //64
 	else {
 		if (bd->options & NAND_BBT_SCAN2NDPAGE)
 			len = 2;
@@ -917,7 +917,7 @@ static struct nand_bbt_descr smallpage_memorybased = {
 static struct nand_bbt_descr largepage_memorybased = {
 	.options = 0,
 	.offs = 0,
-	.len = 2,
+	.len = 1,
 	.pattern = scan_ff_pattern
 };
 
@@ -931,7 +931,7 @@ static struct nand_bbt_descr smallpage_flashbased = {
 static struct nand_bbt_descr largepage_flashbased = {
 	.options = NAND_BBT_SCANEMPTY | NAND_BBT_SCANALLPAGES,
 	.offs = 0,
-	.len = 2,
+	.len = 1,
 	.pattern = scan_ff_pattern
 };
 

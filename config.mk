@@ -137,8 +137,8 @@ else
 ARFLAGS = crv
 endif
 RELFLAGS= $(PLATFORM_RELFLAGS)
-DBGFLAGS= -g # -DDEBUG
-OPTFLAGS= -Os #-fomit-frame-pointer
+DBGFLAGS= -gdwarf-2 -DDEBUG
+OPTFLAGS= -O0 # -Os #-fomit-frame-pointer
 ifndef LDSCRIPT
 #LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
 ifeq ($(CONFIG_NAND_U_BOOT),y)

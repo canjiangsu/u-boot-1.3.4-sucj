@@ -226,6 +226,7 @@ static u_char nand_read_byte(struct mtd_info *mtd)
 static void nand_write_byte(struct mtd_info *mtd, u_char byte)
 {
 	struct nand_chip *this = mtd->priv;
+	//printf("nand_write_byte:%02X-%08X\r\n", byte, this->IO_ADDR_W);
 	writeb(byte, this->IO_ADDR_W);
 }
 
@@ -548,6 +549,7 @@ static void nand_command (struct mtd_info *mtd, unsigned command, int column, in
 
 	/* Begin command latch cycle */
 	this->hwcontrol(mtd, NAND_CTL_SETCLE);
+	
 	/*
 	 * Write out the command to the device.
 	 */
@@ -630,7 +632,7 @@ static void nand_command (struct mtd_info *mtd, unsigned command, int column, in
 
 	/* Apply this short delay always to ensure that we do wait tWB in
 	 * any case on any machine. */
-	ndelay (100);
+//	ndelay (100);
 	/* wait until command is processed */
 	while (!this->dev_ready(mtd));
 }
@@ -2369,7 +2371,8 @@ int nand_scan (struct mtd_info *mtd, int maxchips)
 	/* Read manufacturer and device IDs */
 	nand_maf_id = this->read_byte(mtd);
 	nand_dev_id = this->read_byte(mtd);
-
+	printk (KERN_INFO "Nand ID:%02X%02X.\r\n", nand_maf_id, nand_dev_id);
+	
 	/* Print and store flash device information */
 	for (i = 0; nand_flash_ids[i].name != NULL; i++) {
 
@@ -2385,7 +2388,7 @@ int nand_scan (struct mtd_info *mtd, int maxchips)
 			/* The 3rd id byte contains non relevant data ATM */
 			extid = this->read_byte(mtd);
 			/* The 4th id byte is the important one */
-			extid = this->read_byte(mtd);
+			extid = this->read_byte(mtd); /* K9F2G08U0B:0x95 */
 			/* Calc pagesize */
 			mtd->oobblock = 1024 << (extid & 0x3);
 			extid >>= 2;

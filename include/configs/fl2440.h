@@ -38,13 +38,18 @@
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
 #undef CONFIG_SKIP_LOWLEVEL_INIT	/* undef for developing */
+//#define  CONFIG_SKIP_LOWLEVEL_INIT     1
+
+#define SUCJ_TEST	1
+#define SUCJ_START_DBG	0
+//#define CFG_NO_FLASH	1
 
 /*
  * High Level Configuration Options
  * (easy to change)
  */
 #define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
-#define	CONFIG_S3C2410		1	/* in a SAMSUNG S3C2410 SoC     */
+#define	CONFIG_S3C2440		1	/* in a SAMSUNG S3C2440 SoC     */
 #define CONFIG_SBC2410X		1	/* on a friendly-arm SBC-2410X Board  */
 
 /* input clock of PLL */
@@ -111,7 +116,7 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_PING
-
+#define CONFIG_CMD_NAND
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttySAC0 root=/dev/nfs " \
@@ -134,8 +139,12 @@
  * Miscellaneous configurable options
  */
 #define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"[ ~ljh@GDLC ]# "	/* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CFG_PROMPT		"[tsann@u-boot]# "	/* Monitor Command Prompt	*/
+#ifdef	CFG_LONGHELP
+#define	CFG_CBSIZE		2048		/* Console I/O Buffer Size	*/
+#else
+#define	CFG_CBSIZE		256			/* Console I/O Buffer Size	*/
+#endif
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 #define	CFG_MAXARGS		16		/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
@@ -169,46 +178,38 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1	   /* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1		0x30000000 /* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE	0x04000000 /* 64 MB */
+#define PHYS_SDRAM_1			0x30000000 /* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE		0x04000000 /* 64 MB */
 
-#define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
+#define PHYS_FLASH_1			0x00000000 /* Flash Bank #1 */
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CFG_FLASH_BASE			PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-/* #define CONFIG_AMD_LV400	1	/\* uncomment this if you have a LV400 flash *\/ */
 
-#define CONFIG_AMD_LV800	1	/* uncomment this if you have a LV800 flash */
+#define CONFIG_INTEL_JS28F320	1 
+#define CFG_MAX_FLASH_BANKS		1	/* max number of memory banks */
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define PHYS_FLASH_SIZE			0x400000   /* 4M */ 
+#define CFG_MAX_FLASH_SECT		32 
+#define CFG_ENV_ADDR         (CFG_FLASH_BASE + 0x40000) 
 
-#ifdef CONFIG_AMD_LV800
-#define PHYS_FLASH_SIZE		0x00100000 /* 1MB */
-#define CFG_MAX_FLASH_SECT	(19)	/* max number of sectors on one chip */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x0F0000) /* addr of environment */
-#endif
+/* timeout values are in ticks */ 
+#define CFG_FLASH_ERASE_TOUT		(2*CFG_HZ) /* Timeout for Flash Erase */ 
+#define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */ 
 
-#ifdef CONFIG_AMD_LV400
-#define PHYS_FLASH_SIZE		0x00080000 /* 512KB */
-#define CFG_MAX_FLASH_SECT	(11)	/* max number of sectors on one chip */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x070000) /* addr of environment */
-#endif
+#define CFG_ENV_IS_IN_FLASH    		1 
+#define CFG_ENV_SIZE        			0x20000    /* Total Size of Environment Sector */ 
 
-/* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(5*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(5*CFG_HZ) /* Timeout for Flash Write */
-
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector */
 
 /*-----------------------------------------------------------------------
  * NAND flash settings
  */
 #if defined(CONFIG_CMD_NAND)
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
+#define CFG_NAND_BASE 0x4E000000 
 #define SECTORSIZE 512
 
 #define ADDR_COLUMN 1
@@ -228,10 +229,12 @@
 #define WRITE_NAND(d, adr)		NF_Write(d)
 #define READ_NAND(adr)			NF_Read()
 /* the following functions are NOP's because S3C24X0 handles this in hardware */
+/*
 #define NAND_CTL_CLRALE(nandptr)
 #define NAND_CTL_SETALE(nandptr)
 #define NAND_CTL_CLRCLE(nandptr)
 #define NAND_CTL_SETCLE(nandptr)
+*/
 /* #undef CONFIG_MTD_NAND_VERIFY_WRITE */
 #endif	/* CONFIG_CMD_NAND */
 

@@ -23,7 +23,7 @@
  */
 
 #include <common.h>
-
+#ifndef CFG_NO_FLASH
 ulong myflush (void);
 
 #define FLASH_BANK_SIZE	PHYS_FLASH_SIZE
@@ -69,6 +69,9 @@ ulong flash_init (void)
 #elif defined(CONFIG_AMD_LV800)
 			(AMD_MANUFACT & FLASH_VENDMASK) |
 			(AMD_ID_LV800B & FLASH_TYPEMASK);
+#elif defined(CONFIG_INTEL_JS28F320)
+			(INTEL_MANUFACT & FLASH_VENDMASK) |
+			(INTEL_ID_28F320J3A & FLASH_TYPEMASK);
 #else
 #error "Unknown flash configured"
 #endif
@@ -429,3 +432,5 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 
 	return write_hword (info, wp, data);
 }
+#endif
+

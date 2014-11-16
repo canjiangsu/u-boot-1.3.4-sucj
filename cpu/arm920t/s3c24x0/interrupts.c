@@ -30,13 +30,15 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB)
+#if defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB) || defined(CONFIG_S3C2440)
 
 #include <arm920t.h>
 #if defined(CONFIG_S3C2400)
 #include <s3c2400.h>
 #elif defined(CONFIG_S3C2410)
 #include <s3c2410.h>
+#elif defined(CONFIG_S3C2440)
+#include <s3c2440.h>
 #endif
 
 int timer_load_val = 0;

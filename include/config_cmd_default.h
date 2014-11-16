@@ -22,10 +22,14 @@
 #define CONFIG_CMD_CONSOLE	/* coninfo			*/
 #define CONFIG_CMD_ECHO		/* echo arguments		*/
 #define CONFIG_CMD_ENV		/* saveenv			*/
+#ifndef CFG_NO_FLASH
 #define CONFIG_CMD_FLASH	/* flinfo, erase, protect	*/
+#endif
 #define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #define CONFIG_CMD_IMI		/* iminfo			*/
+#ifndef CFG_NO_FLASH
 #define CONFIG_CMD_IMLS		/* List all found images	*/
+#endif
 #define CONFIG_CMD_ITEST	/* Integer (and string) test	*/
 #define CONFIG_CMD_LOADB	/* loadb			*/
 #define CONFIG_CMD_LOADS	/* loads			*/

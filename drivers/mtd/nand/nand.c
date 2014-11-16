@@ -26,6 +26,8 @@
 #if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
 
 #include <nand.h>
+#include <s3c2440.h>
+#include <asm/io.h>
 
 #ifndef CFG_NAND_BASE_LIST
 #define CFG_NAND_BASE_LIST { CFG_NAND_BASE }
@@ -59,7 +61,6 @@ static void nand_init_chip(struct mtd_info *mtd, struct nand_chip *nand,
 	}
 
 }
-
 void nand_init(void)
 {
 	int i;

@@ -33,6 +33,9 @@ SECTIONS
 	.text      :
 	{
 	  cpu/arm920t/start.o	(.text)
+	  board/fl2440/lowlevel_init.o (.text)
+	  board/fl2440/nand_boot.o (.text)
+	  board/fl2440/fl2440_led.o (.text)
 	  *(.text)
 	}
 
@@ -45,6 +48,7 @@ SECTIONS
 	. = ALIGN(4);
 	.got : { *(.got) }
 
+	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;

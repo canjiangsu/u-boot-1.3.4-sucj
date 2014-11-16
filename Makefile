@@ -279,13 +279,15 @@ __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 #########################################################################
 #########################################################################
 
-ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND)
+ALL += $(obj)u-boot.axf $(obj)u-boot.srec $(obj)u-boot.bin $(obj)u-boot.dis $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND)
 ifeq ($(ARCH),blackfin)
 ALL += $(obj)u-boot.ldr
 endif
 
 all:		$(ALL)
-
+$(obj)u-boot.axf:	$(obj)u-boot
+		cp $< ./keil/$@
+		
 $(obj)u-boot.hex:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@
 
@@ -428,7 +430,7 @@ $(obj)System.map:	$(obj)u-boot
 # the dep file is only include in this top level makefile to determine when
 # to regenerate the autoconf.mk file.
 $(obj)include/autoconf.mk.dep: $(obj)include/config.h include/common.h
-	@$(XECHO) Generating $@ ; \
+	$(XECHO) Generating $@ ; \
 	set -e ; \
 	: Generate the dependancies ; \
 	$(CC) -x c -DDO_DEPS_ONLY -M $(HOST_CFLAGS) $(CPPFLAGS) \

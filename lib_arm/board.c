@@ -171,7 +171,7 @@ static int init_baudrate (void)
 static int display_banner (void)
 {
 	printf ("\n\n%s\n\n", version_string);
-	debug ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
+	printf ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
 	       _armboot_start, _bss_start, _bss_end);
 #ifdef CONFIG_MODEM_SUPPORT
 	debug ("Modem Support enabled\n");
@@ -280,8 +280,10 @@ init_fnc_t *init_sequence[] = {
 				   as possible */
 #endif
 	board_init,		/* basic board dependent setup */
+#if 1
 	interrupt_init,		/* set up exceptions */
 	env_init,		/* initialize environment */
+#endif
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */

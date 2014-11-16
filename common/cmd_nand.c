@@ -451,10 +451,14 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 		return 0;
-	}
+	}	
 
 usage:
+#ifdef	CFG_LONGHELP
+	printf("Usage:\n%s%s\n", cmdtp->usage, cmdtp->help);
+#else
 	printf("Usage:\n%s\n", cmdtp->usage);
+#endif
 	return 1;
 }
 
