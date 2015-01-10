@@ -509,17 +509,17 @@ eth_init(bd_t * bd)
 	DM9000_iow(DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);
 	/* Enable TX/RX interrupt mask */
 	DM9000_iow(DM9000_IMR, IMR_PAR);
-
+	#if 0
 	i = 0;
 	while (!(phy_read(1) & 0x20)) {	/* autonegation complete bit */
 		udelay(1000);
 		i++;
-		if (i == 10000) {
+		if (i == 500000) {
 			printf("could not establish link\n");
 			return 0;
 		}
 	}
-
+	#endif
 	/* see what we've got */
 	lnk = phy_read(17) >> 12;
 	printf("operating at ");
@@ -736,7 +736,7 @@ phy_read(int reg)
 	val = (DM9000_ior(DM9000_EPDRH) << 8) | DM9000_ior(DM9000_EPDRL);
 
 	/* The read data keeps on REG_0D & REG_0E */
-	DM9000_DBG("phy_read(0x%x): 0x%x\n", reg, val);
+//	DM9000_DBG("phy_read(0x%x): 0x%x\n", reg, val);
 	return val;
 }
 

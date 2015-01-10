@@ -88,6 +88,15 @@ static ulong end_addr_new = CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1;
 extern uchar default_environment[];
 extern int default_environment_size;
 
+void DUMP_CONT(char *buf, int iLen)
+{
+	int i;
+	for (i=0; i<iLen; i++) {
+		if ((i != 0) && (i&(0xf) == 0))
+			printf("\r\n");
+		printf("%02X ", buf[i]);
+	}	
+}
 
 uchar env_get_char_spec (int index)
 {
@@ -249,6 +258,8 @@ Done:
 
 int  env_init(void)
 {
+	printf("---%s---\r\n", __FUNCTION__);
+	DUMP_CONT(env_ptr->data, 64);
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr  = (ulong)&(env_ptr->data);
 		gd->env_valid = 1;

@@ -27,15 +27,24 @@
 ulong myflush (void);
 
 #define FLASH_BANK_SIZE	PHYS_FLASH_SIZE
-#define MAIN_SECT_SIZE  0x10000	/* 64 KB */
+#define MAIN_SECT_SIZE  0x20000	/* 128 KB */
 
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
+#define ADDR_DRIVER_ANY		(volatile u16 *)CFG_FLASH_BASE
+/* 芯片内任意地址，千万别取为0x01。
+  * 会导致根本读不出状态寄存器而导
+  * 致擦除失败。调试时就出现了这种
+  * 状况。所以任意地址要取一个不特
+  * 殊的地址。这里取为0x03c0。
+  */
+  
+#define CMD_READ_STATU		0x0070		//读取状态寄存器命令码
 #define CMD_READ_ARRAY		0x000000F0
 #define CMD_UNLOCK1		0x000000AA
 #define CMD_UNLOCK2		0x00000055
-#define CMD_ERASE_SETUP		0x00000080
-#define CMD_ERASE_CONFIRM	0x00000030
+#define CMD_ERASE_SETUP		0x0020
+#define CMD_ERASE_CONFIRM	0x00D0
 #define CMD_PROGRAM		0x000000A0
 #define CMD_UNLOCK_BYPASS	0x00000020
 
@@ -44,7 +53,7 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 
 #define BIT_ERASE_DONE		0x00000080
 #define BIT_RDY_MASK		0x00000080
-#define BIT_PROGRAM_ERROR	0x00000020
+#define BIT_PROGRAM_ERROR	0x000000
 #define BIT_TIMEOUT		0x80000000	/* our flag */
 
 #define READY 1
@@ -83,30 +92,7 @@ ulong flash_init (void)
 		else
 			panic ("configured too many flash banks!\n");
 		for (j = 0; j < flash_info[i].sector_count; j++) {
-			if (j <= 3) {
-				/* 1st one is 16 KB */
-				if (j == 0) {
-					flash_info[i].start[j] =
-						flashbase + 0;
-				}
-
-				/* 2nd and 3rd are both 8 KB */
-				if ((j == 1) || (j == 2)) {
-					flash_info[i].start[j] =
-						flashbase + 0x4000 + (j -
-								      1) *
-						0x2000;
-				}
-
-				/* 4th 32 KB */
-				if (j == 3) {
-					flash_info[i].start[j] =
-						flashbase + 0x8000;
-				}
-			} else {
-				flash_info[i].start[j] =
-					flashbase + (j - 3) * MAIN_SECT_SIZE;
-			}
+			flash_info[i].start[j] = flashbase + j * MAIN_SECT_SIZE;
 		}
 		size += flash_info[i].size;
 	}
@@ -133,6 +119,9 @@ void flash_print_info (flash_info_t * info)
 	case (AMD_MANUFACT & FLASH_VENDMASK):
 		printf ("AMD: ");
 		break;
+	case (INTEL_MANUFACT & FLASH_VENDMASK):
+		printf ("Intel: ");
+		break;	
 	default:
 		printf ("Unknown Vendor ");
 		break;
@@ -145,6 +134,9 @@ void flash_print_info (flash_info_t * info)
 	case (AMD_ID_LV800B & FLASH_TYPEMASK):
 		printf ("1x Amd29LV800BB (8Mbit)\n");
 		break;
+	case (INTEL_ID_28F320J3A & FLASH_TYPEMASK):
+		printf ("1x JS28F320J3D-75 (32Mbit)\n");
+		break;	
 	default:
 		printf ("Unknown Chip Type\n");
 		goto Done;
@@ -186,11 +178,13 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		return ERR_INVAL;
 	}
 
-	if ((info->flash_id & FLASH_VENDMASK) !=
-	    (AMD_MANUFACT & FLASH_VENDMASK)) {
+	if (((info->flash_id & FLASH_VENDMASK) !=
+	    (AMD_MANUFACT & FLASH_VENDMASK))
+	    && ((info->flash_id & FLASH_VENDMASK) !=
+	    (INTEL_MANUFACT & FLASH_VENDMASK))) {
 		return ERR_UNKNOWN_FLASH_VENDOR;
 	}
-
+	
 	prot = 0;
 	for (sect = s_first; sect <= s_last; ++sect) {
 		if (info->protect[sect]) {
@@ -221,39 +215,32 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		if (info->protect[sect] == 0) {	/* not protected */
 			vu_short *addr = (vu_short *) (info->start[sect]);
 
-			MEM_FLASH_ADDR1 = CMD_UNLOCK1;
-			MEM_FLASH_ADDR2 = CMD_UNLOCK2;
-			MEM_FLASH_ADDR1 = CMD_ERASE_SETUP;
-
-			MEM_FLASH_ADDR1 = CMD_UNLOCK1;
-			MEM_FLASH_ADDR2 = CMD_UNLOCK2;
-			*addr = CMD_ERASE_CONFIRM;
+			*addr = CMD_ERASE_SETUP;
+			*addr = CMD_ERASE_CONFIRM;			
 
 			/* wait until flash is ready */
 			chip = 0;
 
 			do {
-				result = *addr;
-
+				*ADDR_DRIVER_ANY = CMD_READ_STATU;
+				result = *ADDR_DRIVER_ANY;
+				*ADDR_DRIVER_ANY = 0x00ff;
 				/* check timeout */
-				if (get_timer_masked () >
+			/*	if (get_timer_masked () >
 				    CFG_FLASH_ERASE_TOUT) {
-					MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 					chip = TMO;
 					break;
 				}
-
+			*/
 				if (!chip
 				    && (result & 0xFFFF) & BIT_ERASE_DONE)
 					chip = READY;
-
-				if (!chip
-				    && (result & 0xFFFF) & BIT_PROGRAM_ERROR)
-					chip = ERR;
-
 			} while (!chip);
 
-			MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
+			if((chip == READY) && (result&0x006a)) {
+				printf ("NOR Erase Block Fail, status=%x\n", result);
+				chip = ERR;	
+			}
 
 			if (chip == ERR) {
 				rc = ERR_PROG_ERROR;

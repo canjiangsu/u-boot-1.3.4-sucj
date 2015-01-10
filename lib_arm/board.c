@@ -484,6 +484,9 @@ extern void dm644x_eth_set_mac_addr (const u_int8_t *addr);
 	reset_phy();
 #endif
 #endif
+#if defined(CONFIG_DRIVER_DM9000)
+	eth_init(gd->bd);
+#endif
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;) {
 		main_loop ();

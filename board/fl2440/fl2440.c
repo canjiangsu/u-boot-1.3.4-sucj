@@ -194,7 +194,7 @@ int board_init (void)
 	gpio->EXTINT2=0x22222222;		// EINT[23:16]
 
 	/* arch number of fl2440-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_FL2440;
+	gd->bd->bi_arch_number = MACH_TYPE_SMDK2410;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x30000100;

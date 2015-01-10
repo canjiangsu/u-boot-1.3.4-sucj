@@ -433,7 +433,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 			if (s_first[bank]>=0) {
 				erased += s_last[bank] - s_first[bank] + 1;
 				debug ("Erase Flash from 0x%08lx to 0x%08lx "
-					"in Bank # %ld ",
+					"in Bank # %ld \r\n",
 					info->start[s_first[bank]],
 					(s_last[bank] == info->sector_count) ?
 						info->start[0] + info->size - 1:
@@ -442,7 +442,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 				rcode = flash_erase (info, s_first[bank], s_last[bank]);
 			}
 		}
-		printf ("Erased %d sectors\n", erased);
+		printf ("Erased %d sectors, rcode=%d.\n", erased, rcode);
 	} else if (rcode == 0) {
 		puts ("Error: start and/or end address"
 			" not on sector boundary\n");
